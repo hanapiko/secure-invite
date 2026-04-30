@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // ✅ Skip middleware for static assets only — this is the speed fix
+  // Skip static assets for performance
   if (
     pathname.startsWith('/_next/static') ||
     pathname.startsWith('/_next/image') ||
@@ -13,7 +13,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // ✅ Keep original session refresh logic exactly as before
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -24,11 +23,21 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
+
+        // ✅ FIXED: added proper typing here
+        setAll(
+          cookiesToSet: {
+            name: string
+            value: string
+            options?: any
+          }[]
+        ) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
+
           supabaseResponse = NextResponse.next({ request })
+
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           )
@@ -37,14 +46,12 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // ✅ Refresh session on every page — keeps cookies fresh and auth working
+  // Refresh session
   await supabase.auth.getUser()
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }
