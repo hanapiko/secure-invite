@@ -8,19 +8,21 @@ import { createClient } from '@/lib/supabase'
 import {
   LayoutDashboard,
   Users,
-  Package,
   Wallet,
   UserCog,
   FileText,
   Settings,
   LogOut,
+  CreditCard,
+  DollarSign,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Loans', href: '/loans', icon: DollarSign },
+  { name: 'Repayments', href: '/repayments', icon: CreditCard },
   { name: 'Customers', href: '/customers', icon: Users },
-  { name: 'Products', href: '/products', icon: Package },
   { name: 'Accounts', href: '/accounts', icon: Wallet },
   { name: 'Users', href: '/users', icon: UserCog },
   { name: 'Reports', href: '/reports', icon: FileText },

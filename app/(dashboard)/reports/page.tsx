@@ -18,15 +18,6 @@ interface Customer {
   created_at: string
 }
 
-interface Product {
-  id: string
-  product_name: string
-  category: string
-  price: number
-  status: string
-  created_at: string
-}
-
 interface Account {
   id: string
   account_name: string
@@ -38,7 +29,6 @@ interface Account {
 
 export default function ReportsPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
-  const [products, setProducts] = useState<Product[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
   const [loading, setLoading] = useState(true)
   const [exporting, setExporting] = useState<string | null>(null)
@@ -55,7 +45,6 @@ export default function ReportsPage() {
       supabase.from('accounts').select('*').order('created_at', { ascending: false }),
     ])
     if (customersRes.data) setCustomers(customersRes.data)
-    if (productsRes.data) setProducts(productsRes.data)
     if (accountsRes.data) setAccounts(accountsRes.data)
     setLoading(false)
   }
@@ -107,43 +96,6 @@ export default function ReportsPage() {
     setExporting(null)
   }
 
-  function exportProductsPDF() {
-    setExporting('products-pdf')
-    const doc = new jsPDF()
-    doc.setFontSize(18)
-    doc.text('Products Report', 14, 22)
-    doc.setFontSize(9)
-    doc.text(`Generated: ${new Date().toLocaleDateString()}  |  Total: ${products.length}`, 14, 30)
-    let y = 42
-    products.forEach((p, i) => {
-      y = checkPageBreak(doc, y, 28)
-      doc.setFontSize(10)
-      doc.text(`${i + 1}. ${p.product_name}`, 14, y)
-      doc.setFontSize(9)
-      doc.text(`Category: ${p.category}   Price: ${formatCurrency(p.price)}   Status: ${p.status}`, 18, y + 5)
-      doc.text(`Created: ${formatDate(p.created_at)}`, 18, y + 10)
-      y += 18
-    })
-    doc.save('products-report.pdf')
-    setExporting(null)
-  }
-
-  function exportProductsExcel() {
-    setExporting('products-xlsx')
-    const ws = XLSX.utils.json_to_sheet(
-      products.map((p) => ({
-        Name: p.product_name,
-        Category: p.category,
-        Price: p.price,
-        Status: p.status,
-        'Created At': formatDate(p.created_at),
-      }))
-    )
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Products')
-    XLSX.writeFile(wb, 'products-report.xlsx')
-    setExporting(null)
-  }
 
   function exportAccountsPDF() {
     setExporting('accounts-pdf')
@@ -218,13 +170,13 @@ export default function ReportsPage() {
             <p className="text-2xl font-bold text-blue-700">{customers.length}</p>
           </div>
         </div>
-        <div className="bg-green-50 rounded-lg p-4 flex items-center gap-3">
+        {/* <div className="bg-green-50 rounded-lg p-4 flex items-center gap-3">
           <Package className="h-8 w-8 text-green-500" />
           <div>
             <p className="text-xs text-green-600 font-medium">Total Products</p>
             <p className="text-2xl font-bold text-green-700">{products.length}</p>
           </div>
-        </div>
+        </div> */}
         <div className="bg-purple-50 rounded-lg p-4 flex items-center gap-3">
           <Wallet className="h-8 w-8 text-purple-500" />
           <div>
@@ -270,7 +222,7 @@ export default function ReportsPage() {
         </Card>
 
         {/* Products Report */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <div className="flex items-center space-x-2">
               <Package className="h-5 w-5 text-green-600" />
@@ -300,7 +252,7 @@ export default function ReportsPage() {
               <p className="text-xs text-slate-400 text-center">No data to export</p>
             )}
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Accounts Report */}
         <Card>
